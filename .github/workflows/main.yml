@@ -1,0 +1,26 @@
+name: Build GoogleAISearch Plugin JAR
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Unzip and Build JAR
+        run: |
+          if [ -f "GoogleAISearchPlugin.zip" ]; then
+            unzip -o GoogleAISearchPlugin.zip -d extracted_plugin
+          fi
+          POM_FILE=$(find . -name "pom.xml" | head -n 1)
+          mvn -B -f "$POM_FILE" clean package
+      - name: Upload Compiled Plugin JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: GoogleAISearch-JAR
+          path: "**/target/GoogleAISearch-*.jar"
