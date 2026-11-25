@@ -1,4 +1,4 @@
-name: Build GoogleAISearch Plugin JAR
+name: Build GoogleAISearch Fabric Mod JAR
 on:
   push:
   workflow_dispatch:
@@ -12,15 +12,19 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - name: Unzip and Build JAR
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.12'
+      - name: Unzip and Build Fabric Mod
         run: |
-          if [ -f "GoogleAISearchPlugin.zip" ]; then
-            unzip -o GoogleAISearchPlugin.zip -d extracted_plugin
+          ZIP_FILE=$(find . -maxdepth 2 -name "GoogleAISearchFabricMod*.zip" | head -n 1)
+          if [ -n "$ZIP_FILE" ]; then
+            unzip -o "$ZIP_FILE" -d extracted_mod
+            cd extracted_mod
           fi
-          POM_FILE=$(find . -name "pom.xml" | head -n 1)
-          mvn -B -f "$POM_FILE" clean package
-      - name: Upload Compiled Plugin JAR
+          gradle build --no-daemon
+      - name: Upload Compiled Fabric Mod JAR
         uses: actions/upload-artifact@v4
         with:
-          name: GoogleAISearch-JAR
-          path: "**/target/GoogleAISearch-*.jar"
+          name: GoogleAISearch-Fabric-Mod
+          path: "**/build/libs/google-ai-search-*.jar"
